@@ -107,6 +107,10 @@ By default the plugin will process jpg/jpeg, webp and avif files.
 
 ## Changelog
 
+### 1.5.0 - 2026-04-01
+- Bugfix in extractMetadata.php
+- Test with WP 7.0 RC2 locally.
+  
 ### 1.4.2 - 2025-12-03
 - Tested with WordPress 6.9.0.
 

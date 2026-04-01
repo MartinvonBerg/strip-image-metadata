@@ -1,12 +1,14 @@
 <?php
 
 /**
- * Extract Metadata from both Webp and JPG-files
+ * Extract Metadata from AVIF, Webp and JPG-files
  *
- * Description: Extract Metadata from both Webp and JPG-files. Note: The result array of the both main functions is structurally not identical. Although identended this requirement was not reached. TODO for a future update. The requirement was: "The exif data a array similar to the JSON that is provided via the REST-API".
+ * Description: Extract Metadata from AVIF, Webp and JPG-files. Note: The result array of the both main functions is structurally not identical. Although identended this requirement was not reached. TODO for a future update. The requirement was: "The exif data a array similar to the JSON that is provided via the REST-API".
  *
  * Requires PHP: 8.0
- * Requires at least: 6.0
+ * Requires at least: 6.2
+ * Tested up to: 7.0
+ * Version: 0.34.1
  * Author: Martin von Berg
  * Author URI: https://www.berg-reise-foto.de/software-wordpress-lightroom-plugins/wordpress-plugins-fotos-und-gpx/
  * License: GPL-2.0
@@ -41,9 +43,6 @@ const EXIF_OFFSET = 8;
 function _mime_content_type( string $file ) 
 { 
 	$mime = '';
-	if ( !is_file( $file ) ) {
-		return $mime;
-	}
 	$phpMime = mime_content_type( $file );
 
 	if ( ! empty( $phpMime ) && ( strpos( $phpMime, 'image/' ) !== false) ) {
@@ -178,7 +177,6 @@ function getJpgMetadata( string $filename ) :array
  */
 function getWebpMetadata( string $filename ) 
 {
-	// TODO: Vereinfachung möglich mit $image->getImageProperies()
 	$parsedWebPData = extractMetadata( $filename );
 	if ( ! $parsedWebPData ) {
 		//return BROKEN_FILE;
@@ -203,13 +201,9 @@ function getWebpMetadata( string $filename )
  */
 function getAvifMetadata( string $filename ) 
 {	
-	if ( !is_file( $filename ) ) {
-		return [];
-	}
 	$image = new \Imagick($filename);
 
 	// Metadaten abrufen (EXIF, XMP, ICC)
-	// TODO: Vereinfachung möglich mit $image->getImageProperies()
 	$chunks = $image->getImageProfiles('*', true); // holt alle profile
 	if ( ! $chunks ) {
 		return [];
@@ -235,13 +229,13 @@ function getAvifMetadata( string $filename )
 				$title = '';
 
 				if ( isset( $index["DC:TITLE"] ) ) {
-					$nr = (int) ($index["DC:TITLE"][1] + $index["DC:TITLE"][0]) / 2;
+					$nr = (int) (($index["DC:TITLE"][1] ?? 0) + ($index["DC:TITLE"][0] ?? 0)) / \count($index["DC:TITLE"]);
 					$title = $vals[ $nr ]["value"];
 				}
 				$title != '' ? $meta[ 'title' ] = $title : $meta[ 'title' ] = 'notitle';
 
 				if ( isset( $index["DC:DESCRIPTION"] ) ) {
-					$nr = (int) ($index["DC:DESCRIPTION"][1] + $index["DC:DESCRIPTION"][0]) / 2;
+					$nr = (int) (($index["DC:DESCRIPTION"][1] ?? 0) + ($index["DC:DESCRIPTION"][0] ?? 0)) / \count($index["DC:DESCRIPTION"]);
 					$caption = $vals[ $nr ]["value"];
 					$meta[ 'caption' ] = $caption;
 				}
@@ -260,9 +254,12 @@ function getAvifMetadata( string $filename )
 					$tagstart = $index["RDF:BAG"][0] +1;
 					$tagend   = $index["RDF:BAG"][1] -1;
 					while ( $tagstart <= $tagend ) {
-						$tag = $vals[ $tagstart ]["value"];
+						// check if value is set and not empty
+						if ( isset( $vals[ $tagstart ]["value"] ) && $vals[ $tagstart ]["value"] != '' ) {
+							$tag = $vals[ $tagstart ]["value"];
+							$tags[] = $tag;
+						}
 						$tagstart += 1;
-						$tags[] = $tag;
 					}
 				}
 
@@ -373,9 +370,12 @@ function extractMetadataFromChunks( array $chunks, string $filename ) :array
 					$tagstart = $index["RDF:BAG"][0] +1;
 					$tagend   = $index["RDF:BAG"][1] -1;
 					while ( $tagstart <= $tagend ) {
-						$tag = $vals[ $tagstart ]["value"];
+						// check if value is set and not empty
+						if ( isset( $vals[ $tagstart ]["value"] ) && $vals[ $tagstart ]["value"] != '' ) {
+							$tag = $vals[ $tagstart ]["value"];
+							$tags[] = $tag;
+						}
 						$tagstart += 1;
-						$tags[] = $tag;
 					}
 				}
 
@@ -473,9 +473,6 @@ function decodeExtendedChunkHeader( string $header ) :array
  */
 function findChunksFromFile( string $filename, int $maxChunks = -1 ) 
 {
-	if ( !is_file( $filename ) ) {
-		return false;
-	}
 	$file = fopen( $filename, 'rb' );
 	$info = findChunks( $file, $maxChunks );
 	fclose( $file );
@@ -485,15 +482,12 @@ function findChunksFromFile( string $filename, int $maxChunks = -1 )
 /**
  * findchunks (EXIF-Data) in a given file
  *
- * @param resource|string $file the file to analyse
+ * @param resource|string $filename the file to analyse
  * @param integer $maxChunks max number of chunks
  * @return false|array fals on failure or array with extracted chunks
  */
 function findChunks( $file, int $maxChunks = -1 ) 
 {
-	if ( !is_resource( $file ) ) {
-			return false;
-	}
 	$riff = fread( $file, 4 );
 	if ( $riff !== 'RIFF' ) {
 		return false;
