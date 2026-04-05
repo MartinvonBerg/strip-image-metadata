@@ -1,0 +1,13 @@
+includes:
+    - vendor/szepeviktor/phpstan-wordpress/extension.neon
+parameters:
+	level: 8
+	paths:
+		- inc
+	scanDirectories:
+		- inc
+		- classes
+	scanFiles:
+		- uninstall.php
+		- strip-image-metadata.php	
+	

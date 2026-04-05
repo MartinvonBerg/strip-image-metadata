@@ -5,7 +5,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: metadata, image, exif, privacy, strip
 Requires at least: 6.0
 Tested up to: 7.0
-Stable tag: 1.5.0
+Stable tag: 1.6.0
 Requires PHP: 8.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -14,7 +14,10 @@ Strip Image Metadata for JPG and WEBP Files
 
 == Description ==
 
-This Plugin is based on the work of Samiff and the Plugin "WP Strip Image Metadata". If you are looking for a simple Plugin to strip all Metadata you should install this one. Available from the WordPress.org plugin repository here: https://wordpress.org/plugins/wp-strip-image-metadata/
+WP Strip Image Metadata is a privacy focused WordPress plugin that helps in removing potentially sensitive metadata from your uploaded images. It strips image metadata on upload or via bulk action, and view image EXIF data.
+
+This Plugin is based on the Plugin "WP Strip Image Metadata" from the WordPress.org plugin repository here: https://wordpress.org/plugins/wp-strip-image-metadata/
+
 This Plugin extends the Functionality of "WP Strip Image Metadata" with the following Functions:
 
 = Extended Functionality =
@@ -132,6 +135,10 @@ By default the plugin will process jpg/jpeg, avif and webp files.
 No need to upgrade right now, if you don't use Images in Avif-Format.
 
 == Changelog ==
+
+### 1.6.0 - 2026-04-05
+- Rework of main class to strip metadata to remove static principles and to use separate file. Add an uninstall.php. Use PHPStan Level 8. TODO : replace Extractor by the shared Extractor.
+- Test with WP 7.0 RC2 locally
 
 ### 1.5.0 - 2026-04-01
 - Bugfix in extractMetadata.php
