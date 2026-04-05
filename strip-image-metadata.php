@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Plugin Name: Strip Image Metadata for JPG and WEBP
+ * Plugin Name: Strip Image Metadata
  * Plugin URI: https://github.com/MartinvonBerg/wp-strip-image-metadata
  * Description: Strip image metadata from JPGs and WEBPs on upload or via bulk action, and view image EXIF data.
  * Version: 1.6.0

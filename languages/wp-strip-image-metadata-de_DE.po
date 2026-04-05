@@ -4,7 +4,7 @@
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 msgid ""
 msgstr ""
-"Project-Id-Version: Strip Image Metadata for JPG and WEBP 1.6.0\n"
+"Project-Id-Version: Strip Image Metadata 1.6.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wp-strip-image-"
 "metadata\n"
 "POT-Creation-Date: 2023-05-02T16:14:10+02:00\n"
@@ -20,8 +20,8 @@ msgstr ""
 "X-Domain: wp-strip-image-metadata\n"
 
 #.  Plugin Name of the plugin
-msgid "Strip Image Metadata for JPG and WEBP"
-msgstr "Strip Image Metadata for JPG and WEBP"
+msgid "Strip Image Metadata"
+msgstr "Strip Image Metadata"
 
 #.  Description of the plugin
 msgid "Strip image metadata from JPGs and WEBPs on upload or via bulk action, and view image EXIF data."

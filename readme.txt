@@ -1,5 +1,5 @@
-=== Strip Image Metadata for JPG and WEBP ===
-Plugin Name: Strip Image Metadata for JPG and WEBP
+=== Strip Image Metadata ===
+Plugin Name: Strip Image Metadata
 Contributors: martinvonberg
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=CQA6XZ7LUMBJQ
 Tags: metadata, image, exif, privacy, strip
@@ -10,7 +10,6 @@ Requires PHP: 8.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Strip Image Metadata for JPG and WEBP Files
 
 == Description ==
 
@@ -119,7 +118,7 @@ By default the plugin will process jpg/jpeg, avif and webp files.
 ### What do the plugin settings do?
 
 -   Image Metadata Stripping: whether image metadata is stripped from new uploads.
--   Preserve ICC Color Profile: whether to keep image color information which is helpful to some applications.
+-   Preserve ICC Colour Profile: whether to keep image colour information which is helpful to some applications.
 -   Preserve Image Orientation: whether to keep image orientation which can help rotate images as intended.
 -   Set / Keep Copyright: whether to set / change or keep Copyright Information based on Template Files.
 -   Size Limit: Only strip Images Files which width is SMALLER than size Limit.
@@ -139,6 +138,7 @@ No need to upgrade right now, if you don't use Images in Avif-Format.
 ### 1.6.0 - 2026-04-05
 - Rework of main class to strip metadata to remove static principles and to use separate file. Add an uninstall.php. Use PHPStan Level 8. TODO : replace Extractor by the shared Extractor.
 - Test with WP 7.0 RC2 locally
+- Renamed the Plugin to strip-image-metadata or 'Strip Image Metadata'
 
 ### 1.5.0 - 2026-04-01
 - Bugfix in extractMetadata.php
@@ -172,7 +172,7 @@ No need to upgrade right now, if you don't use Images in Avif-Format.
 - Tested with WordPress 6.4. Bugfix for PHP 7.4 (mixed return type was wrong)
 
 ### 1.2.0 - 2023-08-09
-- Tested with WordPress 6.3. First upload to Plugin-Direcotory.
+- Tested with WordPress 6.3. First upload to Plugin-Directory.
 
 ### 1.2.0 - 2023-07-26
 - Added checking of WP Nonces for security.

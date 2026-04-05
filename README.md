@@ -134,6 +134,7 @@ By default the plugin will process jpg/jpeg, webp and avif files.
 ### 1.6.0 - 2026-04-05 <!-- omit from toc -->
 - Rework of main class to strip metadata to remove static principles and to use separate file. Add an uninstall.php. Use PHPStan Level 8. TODO : replace Extractor by the shared Extractor.
 - Test with WP 7.0 RC2 locally.
+- Renamed the Plugin to strip-image-metadata or 'Strip Image Metadata'
   
 ### 1.5.0 - 2026-04-01  <!-- omit from toc -->
 - Bugfix in extractMetadata.php
@@ -167,7 +168,7 @@ By default the plugin will process jpg/jpeg, webp and avif files.
 - Tested with WordPress 6.4. Bugfix for PHP 7.4 (mixed return type was wrong)
 
 ### 1.2.0 - 2023-08-09 <!-- omit from toc -->
-- Tested with WordPress 6.3. First upload to Plugin-Direcotory.
+- Tested with WordPress 6.3. First upload to Plugin-Directory.
 
 ### 1.2.0 - 2023-07-26 <!-- omit from toc -->
 - Added checking of WP Nonces for security.
@@ -185,7 +186,7 @@ By default the plugin will process jpg/jpeg, webp and avif files.
 * Updates for translation including bugfixes and German translation added.
 
 ### 1.1.0 - 2023-05-01 <!-- omit from toc -->
-* Updates for phpstan check with level 8. Only 8 error messages remain, but these are due to inconstent type definitions in WP functions. No functional changes. Readme update.
+* Updates for phpstan check with level 8. Only 8 error messages remain, but these are due to inconsistent type definitions in WP functions. No functional changes. Readme update.
 
 ### 1.0 - 2023-04-27 <!-- omit from toc -->
 - Initial plugin release based on the work of Samiff
