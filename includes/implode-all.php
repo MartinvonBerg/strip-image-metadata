@@ -3,25 +3,27 @@ namespace  mvbplugins\stripmetadata;
 
 /**
  * Concatenate multidimensional-array-to-string with glue separator.
- *
- * @source https://stackoverflow.com/questions/12309047/multidimensional-array-to-string multidimensional-array-to-string
+ * 
  * @param  string $glue the separator for the string concetantion of array contents.
  * @param  string|array<int, string> $arr input array
- * @return string|mixed return string on success or the input if it is not a string
+ * 
+ * @return string return string on success or the input converted to string if it is not an array.
  */
-function implode_all( string $glue, string|array $arr ) {
-	if( \is_array( $arr ) ){
+function implode_all(string $glue, string|array $arr): string
+{
+    if (!\is_array($arr)) {
+        return (string) $arr;
+    }
 
-		foreach( $arr as $key => &$value ){
-  
-			if( \is_array( $value ) ){
-				$arr[ $key ] = implode_all( $glue, $value );
-			}
-		}
-  
-		return implode( $glue, $arr );
-	}
+    $iterator = new \RecursiveIteratorIterator(
+        new \RecursiveArrayIterator($arr)
+    );
 
-	// Not array
-	return $arr;
+    $flat = [];
+
+    foreach ($iterator as $value) {
+        $flat[] = (string) $value;
+    }
+
+    return implode($glue, $flat);
 }

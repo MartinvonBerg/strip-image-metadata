@@ -470,10 +470,9 @@ final class StripImageMetadata {
 					if ( $mime === 'image/jpeg' ) {
 						$exifData = $extractor->getMetadata( $path );
 						if ( \mvbplugins\stripmetadata\implode_all( ' ', $exifData) === " -- -- -- -- ---    0 notitle     ") {$exifData = '';}; 
-					} elseif ( $mime === 'image/webp' || $mime === 'image/avif' ) {
+					} else {
 						$exifData = $extractor->getMetadata( $path );
 					}
-					else { $exifData = []; }
 	
 					$filesize = $this->filesize_formatted( $path);
 					$size = \strlen( \mvbplugins\stripmetadata\implode_all( ' ', $exifData ) );

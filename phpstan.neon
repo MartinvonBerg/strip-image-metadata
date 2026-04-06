@@ -3,9 +3,9 @@ includes:
 parameters:
 	level: 8
 	paths:
-		- inc
+		- includes
 	scanDirectories:
-		- inc
+		- includes
 		- classes
 	scanFiles:
 		- uninstall.php
