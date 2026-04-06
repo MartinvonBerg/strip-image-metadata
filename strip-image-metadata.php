@@ -38,5 +38,4 @@ require_once __DIR__ . '/inc/extractMetadata.php';
 require_once __DIR__ . '/inc/implode-all.php';
 require_once __DIR__ . '/classes/StripImageMetadata.php';
 
-$plugin = new StripImageMetadata();
-$plugin->init();
+(new StripImageMetadata())->init();
