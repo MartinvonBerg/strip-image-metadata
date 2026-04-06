@@ -34,8 +34,8 @@ function wp_strip_meta_load_textdomain() {
 	load_plugin_textdomain( 'wp-strip-image-metadata', false, $dir ); 
 }
 
-require_once __DIR__ . '/inc/extractMetadata.php';
-require_once __DIR__ . '/inc/implode-all.php';
+require_once __DIR__ . '/includes/shared/autoload.php';
+require_once __DIR__ . '/includes/implode-all.php';
 require_once __DIR__ . '/classes/StripImageMetadata.php';
 
 (new StripImageMetadata())->init();

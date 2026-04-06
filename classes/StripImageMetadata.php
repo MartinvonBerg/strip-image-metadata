@@ -69,12 +69,15 @@ final class StripImageMetadata {
 		$image_lib = $this->has_supported_image_library();
 
 		$plugin_root = dirname(__DIR__);
-		$pathToCopyrightFile_webp = $plugin_root . \DIRECTORY_SEPARATOR . 'images' . \DIRECTORY_SEPARATOR . 'copyright.webp';
 		$pathToCopyrightFile_jpg = $plugin_root . \DIRECTORY_SEPARATOR . 'images' . \DIRECTORY_SEPARATOR . 'copyright.jpg';
+		$pathToCopyrightFile_webp = $plugin_root . \DIRECTORY_SEPARATOR . 'images' . \DIRECTORY_SEPARATOR . 'copyright.webp';
 		$pathToCopyrightFile_avif = $plugin_root . \DIRECTORY_SEPARATOR . 'images' . \DIRECTORY_SEPARATOR . 'copyright.avif';
-		$exif_jpg = \is_file( $pathToCopyrightFile_jpg) ? \mvbplugins\stripmetadata\getJpgMetadata( $pathToCopyrightFile_jpg) : [];
-		$exif_webp = \is_file( $pathToCopyrightFile_webp) ? \mvbplugins\stripmetadata\getWebpMetadata( $pathToCopyrightFile_webp) : [];
-		$exif_avif = \is_file( $pathToCopyrightFile_avif) ? \mvbplugins\stripmetadata\getAvifMetadata( $pathToCopyrightFile_avif) : [];
+
+		$extractor = new \mvbplugins\Extractors\MetadataExtractor();
+		$exif_jpg = \is_file( $pathToCopyrightFile_jpg) ? $extractor->getMetadata( $pathToCopyrightFile_jpg) : [];
+		$exif_webp = \is_file( $pathToCopyrightFile_webp) ? $extractor->getMetadata( $pathToCopyrightFile_webp) : [];
+		$exif_avif = \is_file( $pathToCopyrightFile_avif) ? $extractor->getMetadata( $pathToCopyrightFile_avif) : [];
+
 		$exif_to_print = ['artist', 'copyright', 'credit'];
 
 		?>
@@ -448,42 +451,27 @@ final class StripImageMetadata {
 				if ( $mime === 'image/jpg') { $mime = 'image/jpeg'; }
 
 				// get EXIF-Data from images
-				if ( $is_image && $pathToOriginalImage !== false && $mime === 'image/jpeg' ) {
+				$extractor = new \mvbplugins\Extractors\MetadataExtractor();
+				
+				if ( $is_image && $pathToOriginalImage !== false && ($mime === 'image/jpeg' || $mime === 'image/webp' || $mime === 'image/avif') ) {
 
 					try {
-						$exif = \mvbplugins\stripmetadata\getJpgMetadata( $pathToOriginalImage );
+						$exif = $extractor->getMetadata( $pathToOriginalImage );
 					} catch ( \Exception $e ) {
-						$this->logger( 'WP Strip Image Metadata: error reading jgp-EXIF data: ' . $e->getMessage() );
+						$this->logger( 'WP Strip Image Metadata: error reading EXIF data: ' . $e->getMessage() );
 					}
-
-				} elseif ( $is_image && $pathToOriginalImage !== false  && $mime === 'image/webp' ) {
-
-					try {
-						$exif = \mvbplugins\stripmetadata\getWebpMetadata( $pathToOriginalImage );
-					} catch ( \Exception $e ) {
-						$this->logger( 'WP Strip Image Metadata: error reading webp-EXIF data: ' . $e->getMessage() );
-					}
-
-				} elseif ( $is_image && $pathToOriginalImage !== false  && $mime === 'image/avif' ) {
-
-					try {
-						$exif = \mvbplugins\stripmetadata\getAvifMetadata( $pathToOriginalImage );
-					} catch ( \Exception $e ) {
-						$this->logger( 'WP Strip Image Metadata: error reading webp-EXIF data: ' . $e->getMessage() );
-					}
-
 				}
 				else {return;}
 
 				$allsizes = '';
 				foreach ( $paths as $key => $path) {
+					$extractor = new \mvbplugins\Extractors\MetadataExtractor();
+
 					if ( $mime === 'image/jpeg' ) {
-						$exifData = \mvbplugins\stripmetadata\getJpgMetadata( $path );
+						$exifData = $extractor->getMetadata( $path );
 						if ( \mvbplugins\stripmetadata\implode_all( ' ', $exifData) === " -- -- -- -- ---    0 notitle     ") {$exifData = '';}; 
-					} elseif ( $mime === 'image/webp' ) {
-						$exifData = \mvbplugins\stripmetadata\getWebpMetadata( $path );
-					} elseif ( $mime === 'image/avif' ) {
-						$exifData = \mvbplugins\stripmetadata\getAvifMetadata( $path );
+					} elseif ( $mime === 'image/webp' || $mime === 'image/avif' ) {
+						$exifData = $extractor->getMetadata( $path );
 					}
 					else { $exifData = []; }
 	
