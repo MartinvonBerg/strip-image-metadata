@@ -131,8 +131,8 @@ By default the plugin will process jpg/jpeg, webp and avif files.
 
 ## Changelog
 
-### 1.6.0 - 2026-04-05 <!-- omit from toc -->
-- Rework of main class to strip metadata to remove static principles and to use separate file. Add an uninstall.php. Use PHPStan Level 8. TODO : replace Extractor by the shared Extractor.
+### 1.6.0 - 2026-04-06 <!-- omit from toc -->
+- Rework of main class to strip metadata to remove static principles and to use separate file. Add an uninstall.php. Use PHPStan Level 8. Replaced Extractor by the shared Extractor.
 - Test with WP 7.0 RC2 locally.
 - Renamed the Plugin to strip-image-metadata or 'Strip Image Metadata'
   

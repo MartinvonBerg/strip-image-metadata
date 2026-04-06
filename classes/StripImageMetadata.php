@@ -629,7 +629,7 @@ final class StripImageMetadata {
 	 * @return bool the result as boolean. True on success.
 	 */
 	public function strip_image_metadata( string $file ) :bool {
-		$mime = \mvbplugins\stripmetadata\_mime_content_type( $file );
+		$mime = wp_check_filetype_and_ext( $file, basename( $file ) )['type'];
 		$result = false;
 
 		// Check for supported file type.
@@ -656,12 +656,13 @@ final class StripImageMetadata {
 			// Using the Gmagick library. 
 
 			// Open the copyright image with the correct EXIF data
+			$plugin_root = dirname(__DIR__);
 			if ($mime === 'image/jpeg') {
-				$pathToTemplateFile = __DIR__ . \DIRECTORY_SEPARATOR . 'images' . \DIRECTORY_SEPARATOR . 'copyright.jpg';
+				$pathToTemplateFile = $plugin_root . \DIRECTORY_SEPARATOR . 'images' . \DIRECTORY_SEPARATOR . 'copyright.jpg';
 			} elseif ($mime === 'image/webp') {
-				$pathToTemplateFile = __DIR__ . \DIRECTORY_SEPARATOR . 'images' . \DIRECTORY_SEPARATOR . 'copyright.webp';
+				$pathToTemplateFile = $plugin_root . \DIRECTORY_SEPARATOR . 'images' . \DIRECTORY_SEPARATOR . 'copyright.webp';
 			} elseif ($mime === 'image/avif') {
-				$pathToTemplateFile = __DIR__ . \DIRECTORY_SEPARATOR . 'images' . \DIRECTORY_SEPARATOR . 'copyright.avif';
+				$pathToTemplateFile = $plugin_root . \DIRECTORY_SEPARATOR . 'images' . \DIRECTORY_SEPARATOR . 'copyright.avif';
 			}
 			else { $pathToTemplateFile = ''; }
 
@@ -768,12 +769,13 @@ final class StripImageMetadata {
 		} elseif ( $img_lib === 'Imagick' ) {
 
 			// Open the copyright image with the correct EXIF data
+			$plugin_root = dirname(__DIR__);
 			if ($mime === 'image/jpeg') {
-				$pathToTemplateFile = __DIR__ . \DIRECTORY_SEPARATOR . 'images' . \DIRECTORY_SEPARATOR . 'copyright.jpg';
+				$pathToTemplateFile = $plugin_root . \DIRECTORY_SEPARATOR . 'images' . \DIRECTORY_SEPARATOR . 'copyright.jpg';
 			} elseif ($mime === 'image/webp') {
-				$pathToTemplateFile = __DIR__ . \DIRECTORY_SEPARATOR . 'images' . \DIRECTORY_SEPARATOR . 'copyright.webp';
+				$pathToTemplateFile = $plugin_root . \DIRECTORY_SEPARATOR . 'images' . \DIRECTORY_SEPARATOR . 'copyright.webp';
 			} elseif ($mime === 'image/avif') {
-				$pathToTemplateFile = __DIR__ . \DIRECTORY_SEPARATOR . 'images' . \DIRECTORY_SEPARATOR . 'copyright.avif';
+				$pathToTemplateFile = $plugin_root . \DIRECTORY_SEPARATOR . 'images' . \DIRECTORY_SEPARATOR . 'copyright.avif';
 			}
 			else { $pathToTemplateFile = '';}
 
