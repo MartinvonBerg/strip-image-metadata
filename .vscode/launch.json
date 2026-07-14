@@ -22,6 +22,16 @@
                 "max_depth": 3
             }
         },
+         {
+            "name": "Listen for Xdebug – Docker WordPress",
+            "type": "php",
+            "request": "launch",
+            "port": 9003,
+            "pathMappings": {
+                "/var/www/html/wp-content/plugins": "C:/wamp64/www/wordpress/wp-content/plugins",
+                "/var/www/html": "${workspaceFolder}/www"
+            }
+        },
         {
             "name": "Launch currently open script",
             "type": "php",
