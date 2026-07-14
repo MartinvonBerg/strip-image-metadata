@@ -229,7 +229,7 @@ final class StripImageMetadata {
 				++$processed_paths;
 			} else {
 				// increment failed_paths only if the last message in $this->rest_log_messages does NOT contain 'skipped'
-				if ( ! strpos( end( $this->rest_log_messages ), 'skipped' ) ) {
+				if ( empty( $this->rest_log_messages ) || ! strpos( end( $this->rest_log_messages ), 'skipped' ) ) {
 					++$failed_paths;
 				} else {
 					array_pop( $this->rest_log_messages );

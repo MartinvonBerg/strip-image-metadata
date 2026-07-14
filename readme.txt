@@ -5,7 +5,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: metadata, image, exif, privacy, strip
 Requires at least: 6.0
 Tested up to: 7.0
-Stable tag: 1.6.0
+Stable tag: 1.7.0
 Requires PHP: 8.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -134,6 +134,23 @@ By default the plugin will process jpg/jpeg, avif and webp files.
 No need to upgrade right now, if you don't use Images in Avif-Format.
 
 == Changelog ==
+
+### 1.7.0 - 2026-07-14
+- Changed filed handling for Bulk Meta Stripping: Now treated by single requests from the client (browser). Errors and failure are now handled in browser. Assessment:
+    Advantages
+        --- No dedicated background process required
+        --- Progress can be displayed immediately in browser. Users can immediately see which image is currently being processed
+        --- A single error does not stop the entire batch process
+        --- No long-running requests
+        --- Works even if WP-Cron or loopback requests are disabled
+        --- Short Request ID without all Media-IDs.
+    Disadvantages
+        --- The browser tab must remain open during processing
+        --- Navigating away from or closing the tab interrupts the process immediately
+        --- Network interruptions require retry and resume logic
+        --- Multiple administrators or multiple tabs may start competing batch processes
+        --- Processing is not truly asynchronous on the server side
+
 
 ### 1.6.0 - 2026-04-05
 - Rework of main class to strip metadata to remove static principles and to use separate file. Add an uninstall.php. Use PHPStan Level 8. Replaced Extractor by the shared Extractor.

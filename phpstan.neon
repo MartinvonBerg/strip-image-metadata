@@ -3,11 +3,13 @@ includes:
 parameters:
 	level: 8
 	paths:
-		- includes
+		- classes
+		- uninstall.php
+		- strip-image-metadata.php
 	scanDirectories:
 		- includes
 		- classes
 	scanFiles:
 		- uninstall.php
-		- strip-image-metadata.php	
+		- strip-image-metadata.php
 	
