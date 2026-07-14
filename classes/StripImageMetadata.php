@@ -65,12 +65,25 @@ final class StripImageMetadata {
 			return;
 		}
 
+		$script_handle = 'wp-strip-image-metadata-admin-bulk';
+
 		wp_enqueue_script(
-			'wp-strip-image-metadata-admin-bulk',
+			$script_handle,
 			WP_STRIP_IMAGE_METADATA_URL . 'src/admin-bulk.js',
 			array(),
 			WP_STRIP_IMAGE_METADATA_VERSION,
 			true
+		);
+
+		wp_localize_script(
+			$script_handle,
+			'wpStripImageMetadata',
+			array(
+				'restUrl' => esc_url_raw(
+					rest_url( 'wp-strip-image-metadata/v1/strip' )
+				),
+				'nonce'   => wp_create_nonce( 'wp_rest' ),
+			)
 		);
 	}
 
@@ -118,7 +131,8 @@ final class StripImageMetadata {
 	 * @return bool|\WP_Error
 	 */
 	public function permission_rest_strip_image_metadata( \WP_REST_Request $request ) :bool|\WP_Error {
-		if ( ! current_user_can( 'manage_options' ) ) {
+
+	if ( ! current_user_can( 'manage_options' ) ) {
 			return new \WP_Error(
 				'wp_strip_image_metadata_forbidden',
 				__(
@@ -168,10 +182,7 @@ final class StripImageMetadata {
 			$request->get_param( 'attachment_id' )
 		);
 
-		if (
-			get_post_type( $attachment_id ) !== 'attachment'
-			|| ! wp_attachment_is_image( $attachment_id )
-		) {
+		if ( get_post_type( $attachment_id ) !== 'attachment' || ! wp_attachment_is_image( $attachment_id ) ) {
 			return new \WP_Error(
 				'wp_strip_image_metadata_invalid_attachment',
 				__(
@@ -206,12 +217,7 @@ final class StripImageMetadata {
 
 		foreach ( $paths as $path ) {
 			if ( ! is_file( $path ) ) {
-				$this->logger(
-					sprintf(
-						'WP Strip Image Metadata: image file not found: %s',
-						$path
-					)
-				);
+				$this->logger( 'WP Strip Image Metadata: image file not found: ' . $path	);
 
 				++$failed_paths;
 				continue;
@@ -222,15 +228,11 @@ final class StripImageMetadata {
 			if ( $success ) {
 				++$processed_paths;
 			} else {
-				++$failed_paths;
-
-				if ( $this->rest_log_messages === [] ) {
-					$this->logger(
-						sprintf(
-							'WP Strip Image Metadata: metadata stripping failed for file: %s',
-							$path
-						)
-					);
+				// increment failed_paths only if the last message in $this->rest_log_messages does NOT contain 'skipped'
+				if ( ! strpos( end( $this->rest_log_messages ), 'skipped' ) ) {
+					++$failed_paths;
+				} else {
+					array_pop( $this->rest_log_messages );
 				}
 			}
 		}
@@ -248,7 +250,7 @@ final class StripImageMetadata {
 				'messages'        => $this->rest_log_messages,
 				'message'         => $success
 					? __(
-						'The image metadata was stripped successfully.',
+						'The image metadata was stripped successfully including all subsizes.',
 						'wp-strip-image-metadata'
 					)
 					: __(
@@ -839,7 +841,7 @@ final class StripImageMetadata {
 	/**
 	 * Strip metadata from an image.
 	 * TODO: After stripping metadata the filesize stored in the database is not updated and therefore wrong!
-	 * @param string $file The file path (not URL) to an uploaded media item.
+	 * @param string $file The file path (not URL) to an uploaded media item. It is checked before whether this $file exists!
 	 *
 	 * @return bool the result as boolean. True on success.
 	 */
@@ -848,7 +850,7 @@ final class StripImageMetadata {
 		$result = false;
 
 		// Check for supported file type.
-		if ( ! in_array( $mime, $this->image_file_types, true ) ) {
+		if ( ! \in_array( $mime, $this->image_file_types, true ) ) {
 			$this->logger( 'WP Strip Image Metadata: Unsupported file type:' . $file );
 			return false;
 		} elseif ( $mime === 'image/jpg') {
@@ -882,10 +884,7 @@ final class StripImageMetadata {
 			}
 			else { $pathToTemplateFile = ''; }
 
-			if (!\is_file($pathToTemplateFile)) {
-				$this->logger('WP Strip Image Metadata: File ' . $pathToTemplateFile . ' not found. Skipping Strip-Metadata.');
-				return false;
-			}
+			
 
 			// Open the image to alter and get its size
 			try {
@@ -897,9 +896,15 @@ final class StripImageMetadata {
 
 			$width = $imageFile->getimagewidth();
 			$height = $imageFile->getimageheight();
+			$longEdge = max($width, $height);
 
 			// do only for all images smaller than $sizeLimit. So $sizeLimit = 0 means no image at all. But $sizeLimit = 10000 means all images.
-			if ($width <= $sizeLimit) {
+			if ($longEdge <= $sizeLimit) {
+
+				if (!\is_file($pathToTemplateFile) && $keepCopyright === 'enabled') {
+					$this->logger('WP Strip Image Metadata: File ' . $pathToTemplateFile . ' not found. Skipping Strip-Metadata.');
+					return false;
+				}
 						
 				$icc_profile = null;
 				// $orientation = null; @todo: currently not capturing orientation via Gmagick.
@@ -976,6 +981,8 @@ final class StripImageMetadata {
 					} 
 				}
 				
+			} else {
+				$this->logger( 'WP Strip Image Metadata: skipped image file due to size limit' . $file	);
 			}
 
 			// Free $gmagick object.
@@ -995,19 +1002,20 @@ final class StripImageMetadata {
 			}
 			else { $pathToTemplateFile = '';}
 
-			if (!\is_file($pathToTemplateFile)) {
-				$this->logger('WP Strip Image Metadata: File ' . $pathToTemplateFile . ' not found. Skipping Strip-Metadata.');
-				return false;
-			}
-
 			// Open the image to alter and get its size
 			$imageFile = new \Imagick($file);
 			$dimensions = $imageFile->getImageGeometry();
 			$width = $dimensions['width'];
 			$height = $dimensions['height'];
+			$longEdge = max($width, $height);
 
 			// do only for all images smaller than $sizeLimit. So $sizeLimit = 0 means no image at all. But $sizeLimit = 10000 means all images.
-			if ($width <= $sizeLimit) {
+			if ($longEdge <= $sizeLimit) {
+
+				if (!\is_file($pathToTemplateFile) && $keepCopyright === 'enabled') {
+					$this->logger('WP Strip Image Metadata: File ' . $pathToTemplateFile . ' not found. Skipping Strip-Metadata.');
+					return false;
+				}
 
 				$icc_profile = null;
 				$orientation = null;
@@ -1094,6 +1102,8 @@ final class StripImageMetadata {
 						$this->logger('WP Strip Image Metadata: error while overwriting image file using Imagick: ' . $e->getMessage());
 					}
 				}
+			} else {
+				$this->logger( 'WP Strip Image Metadata: skipped image file due to size limit' . $file	);
 			}
 			// clear imagick
 			$imageFile->clear();
