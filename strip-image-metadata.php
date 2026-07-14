@@ -21,6 +21,9 @@ namespace mvbplugins\stripmetadata;
 
 if ( ! \defined( 'ABSPATH' ) ) { exit; }
 
+define( 'WP_STRIP_IMAGE_METADATA_URL', plugin_dir_url( __FILE__ ) );
+define( 'WP_STRIP_IMAGE_METADATA_VERSION', '1.6.0' );
+
 // load textdomain
 add_action( 'init', '\mvbplugins\stripmetadata\wp_strip_meta_load_textdomain');
 
