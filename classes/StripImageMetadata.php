@@ -685,7 +685,18 @@ final class StripImageMetadata {
 
 				//$exifAsStringLength = \strlen( \mvbplugins\stripmetadata\implode_all( ' ', $exif ) );
 				$exifAsStringLength = rtrim($allsizes,' /') . ' ' . __('Meta Size','wp-strip-image-metadata') . ' in Bytes.';
-				if ( \mvbplugins\stripmetadata\implode_all( ' ', $exif) === " -- -- -- -- ---    0 notitle     ") {$exif = '';};
+				//if ( \mvbplugins\stripmetadata\implode_all( ' ', $exif) === " -- -- -- -- ---    0 notitle     ") {$exif = '';};
+				$formatted_exif = wp_json_encode(
+					$exif,
+					JSON_PRETTY_PRINT
+					| JSON_UNESCAPED_UNICODE
+					| JSON_UNESCAPED_SLASHES
+					| JSON_INVALID_UTF8_SUBSTITUTE
+				);
+
+				if ( ! is_string( $formatted_exif ) ) {
+					$formatted_exif = __( 'The EXIF data could not be formatted.', 'wp-strip-image-metadata' );
+				}
 				
 				$current_uri = add_query_arg( NULL, NULL );
 				if ( isset( $_POST['strip_meta_button']) ) {
@@ -699,25 +710,54 @@ final class StripImageMetadata {
 
 				add_action(
 					'admin_notices',
-					function () use ( $exif, $exifAsStringLength, $paths, $current_uri ) {
+					function () use ( $formatted_exif, $exifAsStringLength, $paths, $current_uri, $settings ) {
 						?>
 				<div class="notice notice-info is-dismissible">
 					<details style="padding-top:8px;padding-bottom:8px;">
 						<summary>
 							<?php esc_html_e( 'WP Strip Image Metadata: expand for image EXIF data. Length : ', 'wp-strip-image-metadata' ); echo esc_attr($exifAsStringLength) ?>
+							<?php if ( $settings['strip_active'] !== 'disabled' ) { ?>
 							<form action="<?php echo esc_attr( $current_uri ) ?>" method="POST">
 								<input type="submit" name="strip_meta_button" id="strip_meta_button" value="<?php \esc_html_e('Strip Metadata','wp-strip-image-metadata')?>" class="button" style="margin-top: 8px;" /><br/>
 							</form>
+							<?php } ?>
 						</summary>
 						<div>
-							<?php
-								/** @phpstan-ignore-next-line */
-							echo '<p>'; esc_html( print_r( $exif ) ); echo '</p>'; 
+							<h3>
+								<?php
+								esc_html_e(
+									'File Paths with Strip Image Metadata Metadata in Bytes',
+									'wp-strip-image-metadata'
+								);
+								?>
+							</h3>
+							<?php 
 							foreach ( $paths as $path) {
-								/** @phpstan-ignore-next-line */
-								echo '<p>'; esc_html( print_r( $path ) ); echo '</p>'; 
+								echo '<p>'; print_r( $path ); echo '</p>'; 
 							}
 							?>
+							<h3>
+								<?php
+								esc_html_e(
+									'Extracted EXIF data',
+									'wp-strip-image-metadata'
+								);
+								?>
+							</h3>
+
+							<pre style="
+								max-height: 30rem;
+								margin: 0 0 16px;
+								padding: 12px;
+								overflow: auto;
+								white-space: pre-wrap;
+								overflow-wrap: anywhere;
+								background: #fff;
+								border: 1px solid #dcdcde;
+								border-radius: 3px;
+								line-height: 1.5;
+							"><?php echo esc_html( $formatted_exif ); ?>
+							</pre>
 						</div>
 					</details>
 				</div>
@@ -880,10 +920,10 @@ final class StripImageMetadata {
 
 			$width = $imageFile->getimagewidth();
 			$height = $imageFile->getimageheight();
-			$longEdge = max($width, $height);
+			$shortEdge = min($width, $height);
 
 			// do only for all images smaller than $sizeLimit. So $sizeLimit = 0 means no image at all. But $sizeLimit = 10000 means all images.
-			if ($longEdge <= $sizeLimit) {
+			if ($shortEdge <= $sizeLimit) {
 
 				if (!\is_file($pathToTemplateFile) && $keepCopyright === 'enabled') {
 					$this->logger('WP Strip Image Metadata: File ' . $pathToTemplateFile . ' not found. Skipping Strip-Metadata.');
@@ -991,10 +1031,10 @@ final class StripImageMetadata {
 			$dimensions = $imageFile->getImageGeometry();
 			$width = $dimensions['width'];
 			$height = $dimensions['height'];
-			$longEdge = max($width, $height);
+			$shortEdge = min($width, $height);
 
 			// do only for all images smaller than $sizeLimit. So $sizeLimit = 0 means no image at all. But $sizeLimit = 10000 means all images.
-			if ($longEdge <= $sizeLimit) {
+			if ($shortEdge <= $sizeLimit) {
 
 				if (!\is_file($pathToTemplateFile) && $keepCopyright === 'enabled') {
 					$this->logger('WP Strip Image Metadata: File ' . $pathToTemplateFile . ' not found. Skipping Strip-Metadata.');
@@ -1109,6 +1149,9 @@ final class StripImageMetadata {
 	 * @return array<string, mixed> returning unchanged $metadata
 	 */
 	public function strip_meta_after_generate_attachment_metadata( array $metadata, int $attachment_id, string $context ) :array {
+		$settings = $this->get_plugin_settings();
+		if ( $settings['strip_active'] === 'disabled' ) {return $metadata;}
+
 		// loop through images
 		$paths = $this->get_all_paths_for_image( $attachment_id );
 		foreach ( $paths as $file) {
@@ -1129,6 +1172,9 @@ final class StripImageMetadata {
 	public function strip_meta_after_rest_mediacat( int $attachment_id, string $context ) :void {
 		if ( $context !== 'context-rest-upload') {return;}
 
+		$settings = $this->get_plugin_settings();
+		if ( $settings['strip_active'] === 'disabled' ) {return;}
+
 		// loop through images
 		$paths = $this->get_all_paths_for_image( $attachment_id );
 		foreach ( $paths as $file) {
@@ -1145,7 +1191,8 @@ final class StripImageMetadata {
 	 * @return array<string, mixed>
 	 */
 	public function register_bulk_strip_action( array $bulk_actions ) :array {
-		if ( ! current_user_can( 'manage_options' ) ) {
+		$settings = $this->get_plugin_settings();
+		if ( ! current_user_can( 'manage_options' ) || $settings['strip_active'] === 'disabled' ) {
 			return $bulk_actions;
 		}
 
