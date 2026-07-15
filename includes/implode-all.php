@@ -2,12 +2,14 @@
 namespace  mvbplugins\stripmetadata;
 
 /**
- * Concatenate multidimensional-array-to-string with glue separator.
- * 
- * @param  string $glue the separator for the string concetantion of array contents.
- * @param  string|array<int, string> $arr input array
- * 
- * @return string return string on success or the input converted to string if it is not an array.
+ * Concatenate a (possibly multidimensional) array to a string using a glue separator.
+ *
+ * Accepts a string (returned cast) or an array whose values (recursively) are
+ * scalars or objects implementing \Stringable; all values are cast to string.
+ *
+ * @param string $glue Separator for concatenation.
+ * @param string|array<int|string, int|float|string|bool|\Stringable|array> $arr Input string or (possibly nested) array of values convertible to string.
+ * @return string The concatenated string, or the input cast to string if not an array.
  */
 function implode_all(string $glue, string|array $arr): string
 {
