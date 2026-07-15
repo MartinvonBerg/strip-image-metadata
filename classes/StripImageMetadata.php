@@ -1035,25 +1035,25 @@ final class StripImageMetadata {
 
 			// do only for all images smaller than $sizeLimit. So $sizeLimit = 0 means no image at all. But $sizeLimit = 10000 means all images.
 			if ($shortEdge <= $sizeLimit) {
-
+				// check if the copyright template file exists. If not, log and skip the strip metadata process.
 				if (!\is_file($pathToTemplateFile) && $keepCopyright === 'enabled') {
 					$this->logger('WP Strip Image Metadata: File ' . $pathToTemplateFile . ' not found. Skipping Strip-Metadata.');
 					return false;
 				}
 
-				$icc_profile = null;
-				$orientation = null;
-
 				// Capture ICC profile if preferred.
+				$icc_profile = null;
 				if ($preserve_icc === 'enabled') {
 					try {
 						$icc_profile = $imageFile->getImageProfile('icc');
+						// $icc_profiles = $imageFile->getImageProfiles('icc', true);
 					} catch (\Exception $e) {
 						// May not be set, ignore.
 					}
 				}
 
-				// Capture image orientation if preferred. \Imagick::ORIENTATION_UNDEFINED = 0 : is undefined, so it is not written.
+				// Capture image orientation if preferred. \Imagick::ORIENTATION_UNDEFINED = 0 : is undefined.
+				$orientation = null;
 				if ($preserve_orientation === 'enabled') {
 					try {
 						$orientation = $imageFile->getImageOrientation();
@@ -1062,30 +1062,64 @@ final class StripImageMetadata {
 					}
 				}
 
-				// Strip the metadata.
+				// Normalize the actual image pixels before removing EXIF metadata.
+				if ( $preserve_orientation === 'enabled' && \is_int( $orientation ) && $orientation !== \Imagick::ORIENTATION_UNDEFINED )
+				{
+					try {
+						$normalize_result = $this->normalize_image_orientation($imageFile, $orientation);
+
+						if ( ! $normalize_result ) {
+							$this->logger(
+								'WP Strip Image Metadata: error while auto-orienting image using Imagick'
+							);
+						}
+					} catch ( \ImagickException $e ) {
+						$this->logger(
+							'WP Strip Image Metadata: error while auto-orienting image using Imagick: '
+							. $e->getMessage()
+						);
+					}
+				}
+
+				// get the new dimensions after auto-orienting because they might have changed.
+				$width    = $imageFile->getImageWidth();
+				$height   = $imageFile->getImageHeight();
+
+				// Strip the metadata, comments, profiles, etc.
 				try {
-					$imageFile->stripImage();
+					$magick_result = $imageFile->stripImage();
+					if (!$magick_result) {
+						$this->logger('WP Strip Image Metadata: error while stripping image metadata using Imagick');
+					}
 				} catch (\Exception $e) {
 					$this->logger('WP Strip Image Metadata: error while stripping image metadata using Imagick: ' . $e->getMessage());
 				}
 
-				// Add back $icc_profile if present.
+				// Add back $icc_profile if present. (Assuming that there was only one ICC profile in the image, which is usually the case.)
 				if ($icc_profile !== null) {
 					try {
-						$imageFile->setImageProfile('icc', $icc_profile);
+						$magick_result = $imageFile->setImageProfile('icc', $icc_profile);
+						if (!$magick_result) {
+							$this->logger('WP Strip Image Metadata: error while setting ICC profile using Imagick');
+						}
 					} catch (\Exception $e) {
 						$this->logger('WP Strip Image Metadata: error while setting ICC profile using Imagick: ' . $e->getMessage());
 					}
 				}
 
-				// Add back $orientation if present. \Imagick::ORIENTATION_UNDEFINED = 0 : is undefined and 0 = false!
-				if ($orientation) {
+				// This is no longer required. Add back $orientation if present. \Imagick::ORIENTATION_UNDEFINED = 0 : is undefined and 0 = false!
+				/*
+				if ($preserve_orientation === 'enabled' && \is_int($orientation) && $orientation !== \Imagick::ORIENTATION_UNDEFINED ) {
 					try {
-						$imageFile->setImageOrientation($orientation);
+						$magick_result = $imageFile->setImageOrientation($orientation);
+						if (!$magick_result) {
+							$this->logger('WP Strip Image Metadata: error while setting image orientation using Imagick');
+						}
 					} catch (\Exception $e) {
 						$this->logger('WP Strip Image Metadata: error while setting image orientation using Imagick: ' . $e->getMessage());
 					}
 				}
+				*/
 
 				if ($keepCopyright === 'enabled') {
 					// generate image with copyright information
@@ -1093,7 +1127,7 @@ final class StripImageMetadata {
 					try {
 						$templateFile = new \Imagick($pathToTemplateFile);
 
-						// Resize the copyright and composite the image over the top
+						// Resize the copyright-image and composite the image over the top
 						$templateFile->resizeImage($width, $height, \imagick::FILTER_POINT, 1.0);
 
 						// Set compression Quality and generate the image
@@ -1105,10 +1139,11 @@ final class StripImageMetadata {
 						if ($icc_profile !== null) {
 							$templateFile->setImageProfile('icc', $icc_profile);
 						}
+						/* // This is no longer required.
 						if ($orientation) {
 							$templateFile->setImageOrientation($orientation);
 						}
-
+						*/
 						// write the new file
 						$result = $templateFile->writeImage($file);
 						$result = $result === true;
@@ -1334,5 +1369,47 @@ final class StripImageMetadata {
 		$formattedSize = number_format( $size / pow(1024, $power), 2, '.', ',' );
 		$formattedUnit = $units[$power];
 		return "{$formattedSize} {$formattedUnit}";
+	}
+
+	/**
+	 * Applies the EXIF orientation to the actual image pixels. Changes the original image.
+	 */
+	private function normalize_image_orientation( \Imagick $image, int $orientation ): bool 
+	{
+		return match ( $orientation ) {
+			\Imagick::ORIENTATION_UNDEFINED,
+			\Imagick::ORIENTATION_TOPLEFT =>
+				true,
+
+			// Mirror horizontally.
+			\Imagick::ORIENTATION_TOPRIGHT =>
+				$image->flopImage(),
+
+			// Rotate 180 degrees.
+			\Imagick::ORIENTATION_BOTTOMRIGHT =>
+				$image->rotateImage( 'none', 180.0 ),
+
+			// Mirror vertically.
+			\Imagick::ORIENTATION_BOTTOMLEFT =>
+				$image->flipImage(),
+
+			// Mirror along the top-left/bottom-right diagonal.
+			\Imagick::ORIENTATION_LEFTTOP =>
+				$image->transposeImage(),
+
+			// Rotate 90 degrees clockwise.
+			\Imagick::ORIENTATION_RIGHTTOP =>
+				$image->rotateImage( 'none', 90.0 ),
+
+			// Mirror along the top-right/bottom-left diagonal.
+			\Imagick::ORIENTATION_RIGHTBOTTOM =>
+				$image->transverseImage(),
+
+			// Rotate 90 degrees counter-clockwise.
+			\Imagick::ORIENTATION_LEFTBOTTOM =>
+				$image->rotateImage( 'none', -90.0 ),
+
+			default => false,
+		};
 	}
 }
