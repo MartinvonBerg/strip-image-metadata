@@ -1283,7 +1283,7 @@ final class StripImageMetadata {
 		}
 		$size = filesize($path);
 		$units = ['B', 'kB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
-		$power = $size > 0 ? floor( log($size, 1024) ) : 0;
+		$power = $size > 0 ? (int)floor( log($size, 1024) ) : 0;
 		$formattedSize = number_format( $size / pow(1024, $power), 2, '.', ',' );
 		$formattedUnit = $units[$power];
 		return "{$formattedSize} {$formattedUnit}";
