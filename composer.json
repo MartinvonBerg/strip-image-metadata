@@ -1,11 +1,11 @@
 {
     "require-dev": {
-        "phpstan/phpstan": "1.12",
+        "phpstan/phpstan": "*",
         "szepeviktor/phpstan-wordpress": "*",
         "phpstan/extension-installer": "*",
         "phpcompatibility/php-compatibility": "*",
-        "dealerdirect/phpcodesniffer-composer-installer": "^1.0",
-        "php-stubs/wordpress-stubs": "^6.9"
+        "dealerdirect/phpcodesniffer-composer-installer": "*",
+        "php-stubs/wordpress-stubs": "*"
     },
     "config": {
         "allow-plugins": {
