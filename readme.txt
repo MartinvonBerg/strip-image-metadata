@@ -87,7 +87,9 @@ Yes, there is a bulk action included. In WP Admin navigate to the Media library 
 
 Select which images you'd like to strip metadata from and then select the "WP Strip Image Metadata" bulk action.
 
-This can be a resource intensive process, so please only select a handful of images at one time for processing.
+NEW: This is controlled now by the client (browser) and manages many files, too. But with some drawbacks: Leave it running once it has started. It shows a status message at the top. See assessment in changelog.
+
+OLD: This can be a resource intensive process, so please only select a handful of images at one time for processing. This is the fallback if javascript is not activated.
 
 ### Will this work for all generated image subsizes (thumbnails)?
 
@@ -135,7 +137,8 @@ No need to upgrade right now, if you don't use Images in Avif-Format.
 
 == Changelog ==
 
-### 1.7.0 - 2026-07-14
+### 1.7.0 - 2026-07-15
+- Update Readme
 - Changed filed handling for Bulk Meta Stripping: Now treated by single requests from the client (browser). Errors and failure are now handled in browser. Assessment:
     Advantages
         --- No dedicated background process required

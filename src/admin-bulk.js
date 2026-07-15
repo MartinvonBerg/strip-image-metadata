@@ -60,10 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
 					'failed_paths'
 				);
 
-				if (
-					restResponse.ok
-					&& result.success === true
-				) {
+				if ( restResponse.ok && result.success === true ) {
 					++successfulAttachments;
 
 					console.log(
@@ -99,9 +96,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				 * HTTP 422 is the regular REST response for an attachment
 				 * that was processed but had one or more file errors.
 				 */
-				if (
-					restResponse.status === 422
-					&& result.success === false
+				if ( restResponse.status === 422 && result.success === false
 				) {
 					unselectAttachment(
 						mediaForm,

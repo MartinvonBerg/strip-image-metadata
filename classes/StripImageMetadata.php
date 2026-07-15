@@ -42,14 +42,14 @@ final class StripImageMetadata {
 	 * @return void
 	 */
 	public function init() :void {
-		add_action( 'admin_menu', array( $this, 'menu_init' ) );
-		add_action( 'admin_init', array( $this, 'settings_init' ) );
-		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_media_admin_script' ) );
-		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
-		add_action( 'wp_rest_mediacat_upload', array( $this, 'strip_meta_after_rest_mediacat'), 10, 2 );
-		add_filter( 'wp_generate_attachment_metadata', array($this,'strip_meta_after_generate_attachment_metadata'), 10, 3 );
-		add_filter( 'bulk_actions-upload', array( $this, 'register_bulk_strip_action' ) );
-		add_filter( 'handle_bulk_actions-upload', array( $this, 'handle_bulk_strip_action' ), 10, 3 );
+		add_action( 'admin_menu', [$this, 'menu_init'] );
+		add_action( 'admin_init', [$this, 'settings_init'] );
+		add_action( 'admin_enqueue_scripts', [$this, 'enqueue_media_admin_script'] );
+		add_action( 'rest_api_init', [$this, 'register_rest_routes'] );
+		add_action( 'wp_rest_mediacat_upload', [$this, 'strip_meta_after_rest_mediacat'], 10, 2 );
+		add_filter( 'wp_generate_attachment_metadata', [$this, 'strip_meta_after_generate_attachment_metadata'], 10, 3 );
+		add_filter( 'bulk_actions-upload', [$this, 'register_bulk_strip_action'] );
+		add_filter( 'handle_bulk_actions-upload', [$this, 'handle_bulk_strip_action'], 10, 3 );
 		$this->admin_notices();
 	}
 
@@ -70,7 +70,7 @@ final class StripImageMetadata {
 		wp_enqueue_script(
 			$script_handle,
 			WP_STRIP_IMAGE_METADATA_URL . 'src/admin-bulk.js',
-			array(),
+			[],
 			WP_STRIP_IMAGE_METADATA_VERSION,
 			true
 		);
@@ -78,12 +78,12 @@ final class StripImageMetadata {
 		wp_localize_script(
 			$script_handle,
 			'wpStripImageMetadata',
-			array(
+			[
 				'restUrl' => esc_url_raw(
 					rest_url( 'wp-strip-image-metadata/v1/strip' )
 				),
 				'nonce'   => wp_create_nonce( 'wp_rest' ),
-			)
+			]
 		);
 	}
 
@@ -97,7 +97,7 @@ final class StripImageMetadata {
 			'wp-strip-image-metadata/v1',
 			'/strip',
 			array(
-				'methods'             => \WP_REST_Server::CREATABLE,
+				'methods'             => \WP_REST_Server::CREATABLE, // equals to 'POST'.
 				'callback'            => array(
 					$this,
 					'handle_rest_strip_image_metadata',
@@ -114,8 +114,7 @@ final class StripImageMetadata {
 						'validate_callback' => static function (
 							mixed $value
 						) :bool {
-							return is_numeric( $value )
-								&& absint( $value ) > 0;
+							return is_numeric( $value ) && absint( $value ) > 0;
 						},
 					),
 				),
@@ -132,36 +131,29 @@ final class StripImageMetadata {
 	 */
 	public function permission_rest_strip_image_metadata( \WP_REST_Request $request ) :bool|\WP_Error {
 
-	if ( ! current_user_can( 'manage_options' ) ) {
+		if ( ! current_user_can( 'manage_options' ) ) 
+		{
 			return new \WP_Error(
 				'wp_strip_image_metadata_forbidden',
-				__(
+				__( 
 					'You are not allowed to strip image metadata.',
 					'wp-strip-image-metadata'
 				),
-				array(
-					'status' => 403,
-				)
+				['status' => 403]
 			);
 		}
 
-		$attachment_id = absint(
-			$request->get_param( 'attachment_id' )
-		);
+		$attachment_id = absint( $request->get_param( 'attachment_id' ) );
 
-		if (
-			$attachment_id === 0
-			|| ! current_user_can( 'edit_post', $attachment_id )
-		) {
+		if ( $attachment_id === 0 || ! current_user_can( 'edit_post', $attachment_id ) ) 
+		{
 			return new \WP_Error(
 				'wp_strip_image_metadata_attachment_forbidden',
 				__(
 					'You are not allowed to modify this attachment.',
 					'wp-strip-image-metadata'
 				),
-				array(
-					'status' => 403,
-				)
+				['status' => 403]
 			);
 		}
 
@@ -178,9 +170,7 @@ final class StripImageMetadata {
 	public function handle_rest_strip_image_metadata( \WP_REST_Request $request ) :\WP_REST_Response|\WP_Error {
 		$this->rest_log_messages = [];
 
-		$attachment_id = absint(
-			$request->get_param( 'attachment_id' )
-		);
+		$attachment_id = absint( $request->get_param( 'attachment_id' ) );
 
 		if ( get_post_type( $attachment_id ) !== 'attachment' || ! wp_attachment_is_image( $attachment_id ) ) {
 			return new \WP_Error(
@@ -189,10 +179,7 @@ final class StripImageMetadata {
 					'The supplied ID is not an image attachment.',
 					'wp-strip-image-metadata'
 				),
-				array(
-					'status'        => 400,
-					'attachment_id' => $attachment_id,
-				)
+				['status' => 400, 'attachment_id' => $attachment_id]
 			);
 		}
 
@@ -205,10 +192,7 @@ final class StripImageMetadata {
 					'No image files were found for this attachment.',
 					'wp-strip-image-metadata'
 				),
-				array(
-					'status'        => 404,
-					'attachment_id' => $attachment_id,
-				)
+				['status' => 404, 'attachment_id' => $attachment_id]
 			);
 		}
 
@@ -240,24 +224,24 @@ final class StripImageMetadata {
 		$success = $failed_paths === 0;
 
 		return new \WP_REST_Response(
-			array(
-				'success'         => $success,
-				'attachment_id'   => $attachment_id,
-				'filename'        => get_the_title( $attachment_id ),
-				'total_paths'     => count( $paths ),
-				'processed_paths' => $processed_paths,
-				'failed_paths'    => $failed_paths,
-				'messages'        => $this->rest_log_messages,
-				'message'         => $success
-					? __(
-						'The image metadata was stripped successfully including all subsizes.',
-						'wp-strip-image-metadata'
-					)
-					: __(
-						'Metadata could not be stripped from all image files.',
-						'wp-strip-image-metadata'
-					),
-			),
+			[
+			'success'         => $success,
+			'attachment_id'   => $attachment_id,
+			'filename'        => get_the_title( $attachment_id ),
+			'total_paths'     => count( $paths ),
+			'processed_paths' => $processed_paths,
+			'failed_paths'    => $failed_paths,
+			'messages'        => $this->rest_log_messages,
+			'message'         => $success
+				? __(
+					'The image metadata was stripped successfully including all subsizes.',
+					'wp-strip-image-metadata'
+				)
+				: __(
+					'Metadata could not be stripped from all image files.',
+					'wp-strip-image-metadata'
+				),
+			],
 			$success ? 200 : 422
 		);
 	}
