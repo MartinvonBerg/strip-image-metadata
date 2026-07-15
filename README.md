@@ -134,7 +134,7 @@ By default the plugin will process jpg/jpeg, webp and avif files.
 ## Changelog
 
 ### 1.7.0 - 2026-07-15 <!-- omit from toc -->
-- Update Readme
+- Update Readme and add some project documenation.
 - Changed filed handling for Bulk Meta Stripping: Now treated by single requests from the client (browser). Errors and failure are now handled in browser. Assessment:
     - Advantages
         - No dedicated background process required
@@ -149,6 +149,8 @@ By default the plugin will process jpg/jpeg, webp and avif files.
         - Network interruptions require retry and resume logic
         - Multiple administrators or multiple tabs may start competing batch processes
         - Processing is not truly asynchronous on the server side
+- Improve EXIF-Meta Output in Admin and consistent usage of settings['strip_active']
+- Replace setting of Orientation-Tag by rotating the final image. Only done for imagick! Reason: imagick can'set the orientation tag in images without any metadata.
 
 ### 1.6.0 - 2026-04-06 <!-- omit from toc -->
 - Rework of main class to strip metadata to remove static principles and to use separate file. Add an uninstall.php. Use PHPStan Level 8. Replaced Extractor by the shared Extractor.

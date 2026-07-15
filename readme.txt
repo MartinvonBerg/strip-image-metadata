@@ -138,7 +138,7 @@ No need to upgrade right now, if you don't use Images in Avif-Format.
 == Changelog ==
 
 ### 1.7.0 - 2026-07-15
-- Update Readme
+- Update Readme and add some project documentation
 - Changed filed handling for Bulk Meta Stripping: Now treated by single requests from the client (browser). Errors and failure are now handled in browser. Assessment:
     Advantages
         --- No dedicated background process required
@@ -153,7 +153,8 @@ No need to upgrade right now, if you don't use Images in Avif-Format.
         --- Network interruptions require retry and resume logic
         --- Multiple administrators or multiple tabs may start competing batch processes
         --- Processing is not truly asynchronous on the server side
-
+- improve EXIF-Meta Output in Admin and consistent usage of settings['strip_active']
+- Replace setting of Orientation-Tag by rotating the final image. Only done for imagick! Reason: imagick can'set the orientation tag in images without any metadata.
 
 ### 1.6.0 - 2026-04-05
 - Rework of main class to strip metadata to remove static principles and to use separate file. Add an uninstall.php. Use PHPStan Level 8. Replaced Extractor by the shared Extractor.
