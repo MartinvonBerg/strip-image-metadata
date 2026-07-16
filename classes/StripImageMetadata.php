@@ -633,6 +633,7 @@ final class StripImageMetadata {
 				$mime = \get_post_mime_type( $post );
 				$pathToOriginalImage = wp_get_original_image_path( $post );
 				$exif = [];
+				$allSubsizesExif = [];
 				$paths = [];
 				$paths = array_merge( $paths, $this->get_all_paths_for_image( $post ) );
 
@@ -659,6 +660,12 @@ final class StripImageMetadata {
 
 					try {
 						$exif = $extractor->getMetadata( $pathToOriginalImage );
+						// get the ICC-Profile name
+						$image = new \Imagick($pathToOriginalImage);
+						$profileName = trim($image->identifyFormat('%[icc:description]') ?: '');
+						$exif['ICC-Profile'] = $profileName ? $profileName : __('No ICC Profile found','wp-strip-image-metadata');
+						$exif['width'] = $image->getImageWidth();
+						$exif['height'] = $image->getImageHeight();
 					} catch ( \Exception $e ) {
 						$this->logger( 'WP Strip Image Metadata: error reading EXIF data: ' . $e->getMessage() );
 					}
@@ -675,17 +682,68 @@ final class StripImageMetadata {
 					} else {
 						$exifData = $extractor->getMetadata( $path );
 					}
-	
+
 					$filesize = $this->filesize_formatted( $path);
 					$size = \strlen( \mvbplugins\stripmetadata\implode_all( ' ', $exifData ) );
 					$allsizes = $allsizes . $size . ' / ';
-					$paths[ $key ] = __('Meta Size','wp-strip-image-metadata') . ' : ' . strval($size) . ' ' . __(' and filesize','wp-strip-image-metadata') . ' : ' . $filesize  . __(' of ','wp-strip-image-metadata') . $paths[ $key ];
+					$paths[ $key ] = __('Meta Size','wp-strip-image-metadata') . ' : ' . strval($size) . ' Bytes /' . __(' and filesize','wp-strip-image-metadata') . ' : ' . $filesize  . __(' of ','wp-strip-image-metadata') . $paths[ $key ];
+
+					// get the ICC-Profile name
+					$image = new \Imagick($path);
+					$profileName = trim($image->identifyFormat('%[icc:description]') ?: '');
+					$exifData['ICC-Profile'] = $profileName ? $profileName : __('No ICC Profile found','wp-strip-image-metadata');
+					$exifData['width'] = $image->getImageWidth();
+					$exifData['height'] = $image->getImageHeight();
+					
+					// collect all exif data for all subsizes in one array
+					$allSubsizesExif[ $key ]['size'] = $size;
+					$allSubsizesExif[ $key ]['filesize'] = $filesize;
+					$allSubsizesExif[ $key ]['width'] = $exifData['width'];
+					$allSubsizesExif[ $key ]['height'] = $exifData['height'];
+					$allSubsizesExif[ $key ]['exif'] = $exifData;
+
 				}
 				sort( $paths );
 
-				//$exifAsStringLength = \strlen( \mvbplugins\stripmetadata\implode_all( ' ', $exif ) );
+				// sort allSubsizesExif by image width ascending, so that the first entry is the smallest image.
+				usort(
+					$allSubsizesExif,
+					static function ( array $a, array $b ): int {
+						return (int) $a['width'] <=> (int) $b['width'];
+					}
+				);
+				foreach ( $allSubsizesExif as &$subsizeExif ) {
+					unset(
+						$subsizeExif['width'],
+						$subsizeExif['height'],
+						$subsizeExif['exif']['width'],
+						$subsizeExif['exif']['height']
+					);
+				}
+				unset( $subsizeExif );
+				// check if there are different Exif Information by size (byte length) information of EXIF Data.
+				$sizes = array_column( $allSubsizesExif, 'size' );
+				$hasDifferentSizes = \count( array_unique( $sizes ) ) > 1;
+
+				// TODO: get the formatted exif if there are different sizes, use the first array-entry (smallest image) for that. Print that in Admin Notice.
+				// if all sizes are the same, just print "All Exif-Data are the same."
+				if ( $hasDifferentSizes ) {
+					$formatted_subsize_exif = wp_json_encode(
+						$allSubsizesExif[0]['exif'],
+						JSON_PRETTY_PRINT
+						| JSON_UNESCAPED_UNICODE
+						| JSON_UNESCAPED_SLASHES
+						| JSON_INVALID_UTF8_SUBSTITUTE
+					);
+					if ( ! is_string( $formatted_subsize_exif ) ) {
+						$formatted_subsize_exif = __( 'The EXIF data could not be formatted.', 'wp-strip-image-metadata' );
+					}
+				} else {
+					$formatted_subsize_exif = __('All Exif-Data are the same.','wp-strip-image-metadata');
+				}
+
 				$exifAsStringLength = rtrim($allsizes,' /') . ' ' . __('Meta Size','wp-strip-image-metadata') . ' in Bytes.';
-				//if ( \mvbplugins\stripmetadata\implode_all( ' ', $exif) === " -- -- -- -- ---    0 notitle     ") {$exif = '';};
+				
 				$formatted_exif = wp_json_encode(
 					$exif,
 					JSON_PRETTY_PRINT
@@ -710,7 +768,7 @@ final class StripImageMetadata {
 
 				add_action(
 					'admin_notices',
-					function () use ( $formatted_exif, $exifAsStringLength, $paths, $current_uri, $settings ) {
+					function () use ( $formatted_exif, $formatted_subsize_exif, $exifAsStringLength, $paths, $current_uri, $settings ) {
 						?>
 				<div class="notice notice-info is-dismissible">
 					<details style="padding-top:8px;padding-bottom:8px;">
@@ -726,7 +784,7 @@ final class StripImageMetadata {
 							<h3>
 								<?php
 								esc_html_e(
-									'File Paths with Strip Image Metadata Metadata in Bytes',
+									'File Paths with Metadata in Bytes',
 									'wp-strip-image-metadata'
 								);
 								?>
@@ -739,7 +797,7 @@ final class StripImageMetadata {
 							<h3>
 								<?php
 								esc_html_e(
-									'Extracted EXIF data',
+									'Extracted EXIF data (original, unscaled image)',
 									'wp-strip-image-metadata'
 								);
 								?>
@@ -757,6 +815,28 @@ final class StripImageMetadata {
 								border-radius: 3px;
 								line-height: 1.5;
 							"><?php echo esc_html( $formatted_exif ); ?>
+							</pre>
+							<h3>
+								<?php
+								esc_html_e(
+									'Stripped EXIF data (smallest image)',
+									'wp-strip-image-metadata'
+								);
+								?>
+							</h3>
+
+							<pre style="
+								max-height: 30rem;
+								margin: 0 0 16px;
+								padding: 12px;
+								overflow: auto;
+								white-space: pre-wrap;
+								overflow-wrap: anywhere;
+								background: #fff;
+								border: 1px solid #dcdcde;
+								border-radius: 3px;
+								line-height: 1.5;
+							"><?php echo esc_html( $formatted_subsize_exif ); ?>
 							</pre>
 						</div>
 					</details>
