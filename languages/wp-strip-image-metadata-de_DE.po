@@ -1,170 +1,232 @@
-# SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# Translation for de_DE for Plugin StripImageMetadata.
+# Copyright (C) 2026 by Martin von Berg.
 # This file is distributed under the same license as the PACKAGE package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+# Martin von Berg, mail@mvb1.de, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Strip Image Metadata 1.7.0\n"
-"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wp-strip-image-"
-"metadata\n"
-"POT-Creation-Date: 2023-05-02T16:14:10+02:00\n"
-"PO-Revision-Date: 2023-07-02 09:38+0100\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wp-strip-image-metadata\n"
 "Last-Translator: \n"
 "Language-Team: \n"
-"Language: de\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2023-05-02T16:14:10+02:00\n"
+"PO-Revision-Date: 2023-07-02 09:38+0100\n"
+"Language: de\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Eazy Po 1.0.0.0\n"
 "X-Domain: wp-strip-image-metadata\n"
 
-#.  Plugin Name of the plugin
+#. Plugin Name of the plugin
+#: strip-image-metadata.php
+#: classes/StripImageMetadata.php:257
+#: classes/StripImageMetadata.php:258
+#: classes/StripImageMetadata.php:287
+#: classes/StripImageMetadata.php:1327
 msgid "Strip Image Metadata"
 msgstr "Strip Image Metadata"
 
-#.  Description of the plugin
+#. Description of the plugin
+#: strip-image-metadata.php
 msgid "Strip image metadata from JPGs and WEBPs on upload or via bulk action, and view image EXIF data."
 msgstr "Bild-Metadaten aus JPGs und WEBPs beim Hochladen oder per Massenaktion entfernen und anzeigen."
 
-#: strip-image-metadata.php:92
-#: strip-image-metadata.php:93
-#: strip-image-metadata.php:115
-#: strip-image-metadata.php:926
-msgid "Strip Image Metadata"
-msgstr "Metadaten entfernen"
-
-#: strip-image-metadata.php:121
+#: classes/StripImageMetadata.php:293
 msgid "Save settings"
 msgstr "Einstellungen speichern"
 
-#: strip-image-metadata.php:125
+#: classes/StripImageMetadata.php:297
 msgid "Plugin Information"
 msgstr "Plugin Informationen"
 
-#.  translators: %s is the image processing library name and version active on the site
-#: strip-image-metadata.php:131
-msgid "Compatible image processing library active: %s. Webp is supported. PHP-Library is: %s"
-msgstr "Kompatible Bildverarbeitungsbibliothek aktiv: %s. Webp wird unterstützt. PHP-Bibliothek ist: %s"
-
-#: strip-image-metadata.php:136
-#: strip-image-metadata.php:380
+#: classes/StripImageMetadata.php:319
+#: classes/StripImageMetadata.php:599
 msgid "WP Strip Image Metadata: compatible image processing library not found. This plugin requires the \"Imagick\" or \"Gmagick\" PHP extension to function - please ask your webhost or system administrator if either can be enabled."
 msgstr "WP Strip Image Metadata: kompatible Bildverarbeitungsbibliothek nicht gefunden. Dieses Plugin benötigt die PHP-Erweiterung \"Imagick\" oder \"Gmagick\", um zu funktionieren - bitte fragen Sie Ihren Webhost oder Systemadministrator, ob eines von beiden aktiviert werden kann."
 
-#: strip-image-metadata.php:139
+#: classes/StripImageMetadata.php:323
 msgid "Copyright Information of available Files"
 msgstr "Copyright Information in verfügbaren Dateien"
 
-#: strip-image-metadata.php:141
+#: classes/StripImageMetadata.php:324
 msgid "- in copyright.jpg"
 msgstr "- in copyright.jpg"
 
-#: strip-image-metadata.php:142
+#: classes/StripImageMetadata.php:331
+#: classes/StripImageMetadata.php:351
 msgid "File copyright.jpg not found"
 msgstr "Datei copyright.jpg nicht gefunden"
 
-#: strip-image-metadata.php:153
+#: classes/StripImageMetadata.php:344
 msgid "- in copyright.webp"
 msgstr "- in copyright.webp"
 
-#: strip-image-metadata.php:154
-msgid "File copyright.webp not found"
-msgstr "Datei copyright.webp nicht gefunden"
-
-#: strip-image-metadata.php:183
+#: classes/StripImageMetadata.php:402
 msgid "Plugin Settings"
 msgstr "Plugin Einstellungen"
 
-#: strip-image-metadata.php:190
+#: classes/StripImageMetadata.php:409
 msgid "Image Metadata Stripping"
 msgstr "Bild-Metadaten entfernen"
 
-#: strip-image-metadata.php:199
+#: classes/StripImageMetadata.php:418
 msgid "Preserve ICC Color Profile"
 msgstr "ICC Farbprofil behalten"
 
-#: strip-image-metadata.php:208
+#: classes/StripImageMetadata.php:427
 msgid "Preserve Image Orientation"
 msgstr "Bildausrichtung behalten"
 
-#: strip-image-metadata.php:217
+#: classes/StripImageMetadata.php:436
 msgid "Set Size Limit"
 msgstr "Größenbeschränkung setzen"
 
-#: strip-image-metadata.php:226
+#: classes/StripImageMetadata.php:445
 msgid "Set / Keep Copyright"
 msgstr "Copyright setzen / erhalten"
 
-#: strip-image-metadata.php:235
+#: classes/StripImageMetadata.php:454
 msgid "Log Errors"
 msgstr "Fehlermeldungen speichern"
 
-#: strip-image-metadata.php:343
+#: classes/StripImageMetadata.php:562
 msgid "Enabled"
 msgstr "Aktiviert"
 
-#: strip-image-metadata.php:345
+#: classes/StripImageMetadata.php:564
 msgid "Disabled"
 msgstr "Deaktiviert"
 
-#: strip-image-metadata.php:359
+#: classes/StripImageMetadata.php:578
 msgid "Set the Maximum Width of Image for Stripping Metadata. 0 means stripping no image at all. 10000 means stripping all images"
 msgstr "Maximale Bildbreite für das Entfernen der Metadaten setzen. \"0\" bedeutet : Nichts wird entfernt. \"10000\" bedeutet: Metadaten in allen Bildern werden entfernt"
 
-#: strip-image-metadata.php:399
+#: classes/StripImageMetadata.php:618
 msgid "WP Strip Image Metadata: stripping is currently disabled."
 msgstr "WP Strip Image Metadata: Das Entfernen ist derzeit deaktiviert."
 
-#: strip-image-metadata.php:459
-#: strip-image-metadata.php:464
+#: classes/StripImageMetadata.php:697
+#: classes/StripImageMetadata.php:753
 msgid "Meta Size"
 msgstr "Metadaten"
 
-#: strip-image-metadata.php:459
+#: classes/StripImageMetadata.php:697
 msgid " and filesize"
 msgstr " und Dateigröße"
 
-#: strip-image-metadata.php:459
+#: classes/StripImageMetadata.php:697
 msgid " of "
 msgstr " für "
 
-#: strip-image-metadata.php:480
+#: classes/StripImageMetadata.php:784
 msgid "WP Strip Image Metadata: expand for image EXIF data. Length : "
 msgstr "WP Strip Image Metadata: Erweitern für EXIF-Daten. Länge : "
 
-#: strip-image-metadata.php:519
+#: classes/StripImageMetadata.php:875
+#, php-format
 msgid "WP Strip Image Metadata: %s image including"
 msgid_plural "WP Strip Image Metadata: %s images including"
 msgstr[0] "Metadaten entfernen: %s Bild einschließlich"
 msgstr[1] "Metadaten entfernen: %s Bilder einschließlich"
 
-#: strip-image-metadata.php:526
+#: classes/StripImageMetadata.php:882
 msgid "subsizes was stripped"
 msgid_plural "subsizes were stripped"
 msgstr[0] "skalierter Dateien wurde bearbeitet"
 msgstr[1] "skalierter Dateien wurden bearbeitet"
 
-#: strip-image-metadata.php:547
+#: classes/StripImageMetadata.php:903
 msgid "WP Strip Image Metadata: unable to locate all image paths. This might be due to a non-standard WordPress uploads directory location."
 msgstr "WP Strip Image Metadata: Es können nicht alle Bildpfade gefunden werden. Dies könnte auf einen nicht standardmäßigen WordPress-Uploads-Verzeichnisstandort zurückzuführen sein."
 
-#.  Plugin URI of the plugin
+#. Plugin URI of the plugin
+#: strip-image-metadata.php
 msgid "https://github.com/MartinvonBerg/wp-strip-image-metadata"
 msgstr ""
 
-#.  Author of the plugin
+#. Author of the plugin
+#: strip-image-metadata.php
 msgid "Martin von Berg"
 msgstr ""
 
-#.  Author URI of the plugin
+#. Author URI of the plugin
+#: strip-image-metadata.php
 msgid "https://www.berg-reise-foto.de/software-wordpress-lightroom-plugins/wordpress-plugins-fotos-und-gpx/"
 msgstr ""
 
-#: strip-image-metadata.php:470
+#: classes/StripImageMetadata.php:770
 msgid "Stripped"
 msgstr "Entfernt"
 
-#: strip-image-metadata.php:482
+#: classes/StripImageMetadata.php:787
 msgid "Strip Metadata"
 msgstr "Entferne Metadaten"
+
+#: classes/StripImageMetadata.php:138
+msgid "You are not allowed to strip image metadata."
+msgstr "Sie sind nicht berechtigt, Bild-Metadaten zu entfernen."
+
+#: classes/StripImageMetadata.php:152
+msgid "You are not allowed to modify this attachment."
+msgstr "Sie sind nicht berechtigt, diesen Anhang zu ändern."
+
+#: classes/StripImageMetadata.php:178
+msgid "The supplied ID is not an image attachment."
+msgstr "Die angegebene ID gehört nicht zu einem Bildanhang."
+
+#: classes/StripImageMetadata.php:191
+msgid "No image files were found for this attachment."
+msgstr "Für diesen Anhang wurden keine Bilddateien gefunden."
+
+#: classes/StripImageMetadata.php:236
+msgid "The image metadata was stripped successfully including all subsizes."
+msgstr "Die Bild-Metadaten wurden einschließlich aller skalierten Bildgrößen erfolgreich entfernt."
+
+#: classes/StripImageMetadata.php:240
+msgid "Metadata could not be stripped from all image files."
+msgstr "Die Metadaten konnten nicht aus allen Bilddateien entfernt werden."
+
+#. translators: %s is the image processing library name and version active on the site
+#: classes/StripImageMetadata.php:303
+#, php-format
+msgid "Compatible image processing library active: %s. PHP-Library is: %s"
+msgstr "Kompatible Bildverarbeitungsbibliothek aktiv: %s. Die PHP-Bibliothek ist: %s"
+
+#: classes/StripImageMetadata.php:314
+msgid "Supported image formats: "
+msgstr "Unterstützte Bildformate: "
+
+#: classes/StripImageMetadata.php:364
+msgid "- in copyright.avif"
+msgstr "- in copyright.avif"
+
+#: classes/StripImageMetadata.php:371
+msgid "File copyright.avif not found"
+msgstr "Datei copyright.avif nicht gefunden"
+
+#: classes/StripImageMetadata.php:672
+#: classes/StripImageMetadata.php:709
+msgid "No ICC Profile found"
+msgstr "Kein ICC-Profil gefunden"
+
+#: classes/StripImageMetadata.php:747
+#: classes/StripImageMetadata.php:764
+msgid "The EXIF data could not be formatted."
+msgstr "Die EXIF-Daten konnten nicht formatiert werden."
+
+#: classes/StripImageMetadata.php:750
+msgid "All Exif-Data are the same."
+msgstr "EXIF-Daten sind in allen Bildern identisch."
+
+#: classes/StripImageMetadata.php:794
+msgid "File Paths with Metadata in Bytes"
+msgstr "Dateipfade mit Metadaten in Byte"
+
+#: classes/StripImageMetadata.php:807
+msgid "Size of extracted Metadata from the original, unscaled image (additional metadata may be present)"
+msgstr "Größe der aus dem ursprünglichen, unskalierten Bild extrahierten Metadaten (weitere Metadaten können vorhanden sein)"
+
+#: classes/StripImageMetadata.php:830
+msgid "Stripped Metadata (smallest image)"
+msgstr "Entfernte Metadaten (kleinstes Bild)"
