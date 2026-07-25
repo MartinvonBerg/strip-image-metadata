@@ -662,10 +662,18 @@ final class StripImageMetadata {
 						$exif = $extractor->getMetadata( $pathToOriginalImage );
 						// get the ICC-Profile name
 						$image = new \Imagick($pathToOriginalImage);
-						$profileName = trim($image->identifyFormat('%[icc:description]') ?: '');
-						$exif['ICC-Profile'] = $profileName ? $profileName : __('No ICC Profile found','wp-strip-image-metadata');
-						$exif['width'] = $image->getImageWidth();
-						$exif['height'] = $image->getImageHeight();
+						$profileName = '';
+						$iccProfiles = $image->getImageProfiles('icc', false);
+
+						if ($iccProfiles !== []) {
+							$profileName = trim( (string) $image->identifyFormat('%[icc:description]') );
+							$exif['ICC-Profile'] = $profileName;
+						} else {
+							$exif['ICC-Profile'] = __('No ICC Profile found','wp-strip-image-metadata');
+						}
+						
+						$image->clear();
+						$image->destroy();
 					} catch ( \Exception $e ) {
 						$this->logger( 'WP Strip Image Metadata: error reading EXIF data: ' . $e->getMessage() );
 					}
@@ -689,38 +697,38 @@ final class StripImageMetadata {
 					$paths[ $key ] = __('Meta Size','wp-strip-image-metadata') . ' : ' . strval($size) . ' Bytes /' . __(' and filesize','wp-strip-image-metadata') . ' : ' . $filesize  . __(' of ','wp-strip-image-metadata') . $paths[ $key ];
 
 					// get the ICC-Profile name
-					$image = new \Imagick($path);
-					$profileName = trim($image->identifyFormat('%[icc:description]') ?: '');
-					$exifData['ICC-Profile'] = $profileName ? $profileName : __('No ICC Profile found','wp-strip-image-metadata');
-					$exifData['width'] = $image->getImageWidth();
-					$exifData['height'] = $image->getImageHeight();
 					
+					$image = new \Imagick($path);
+					$profileName = '';
+						$iccProfiles = $image->getImageProfiles('icc', false);
+
+						if ($iccProfiles !== []) {
+							$profileName = trim( (string) $image->identifyFormat('%[icc:description]') );
+							$exifData['ICC-Profile'] = $profileName;
+						} else {
+							$exifData['ICC-Profile'] = __('No ICC Profile found','wp-strip-image-metadata');
+						}
+					
+					$image->clear();
+					$image->destroy();
+
 					// collect all exif data for all subsizes in one array
 					$allSubsizesExif[ $key ]['size'] = $size;
 					$allSubsizesExif[ $key ]['filesize'] = $filesize;
-					$allSubsizesExif[ $key ]['width'] = $exifData['width'];
-					$allSubsizesExif[ $key ]['height'] = $exifData['height'];
 					$allSubsizesExif[ $key ]['exif'] = $exifData;
-
+					
 				}
 				sort( $paths );
 
 				// sort allSubsizesExif by image width ascending, so that the first entry is the smallest image.
+				
 				usort(
 					$allSubsizesExif,
 					static function ( array $a, array $b ): int {
-						return (int) $a['width'] <=> (int) $b['width'];
+						return (int) $a['size'] <=> (int) $b['size'];
 					}
 				);
-				foreach ( $allSubsizesExif as &$subsizeExif ) {
-					unset(
-						$subsizeExif['width'],
-						$subsizeExif['height'],
-						$subsizeExif['exif']['width'],
-						$subsizeExif['exif']['height']
-					);
-				}
-				unset( $subsizeExif );
+			
 				// check if there are different Exif Information by size (byte length) information of EXIF Data.
 				$sizes = array_column( $allSubsizesExif, 'size' );
 				$hasDifferentSizes = \count( array_unique( $sizes ) ) > 1;
@@ -741,7 +749,7 @@ final class StripImageMetadata {
 				} else {
 					$formatted_subsize_exif = __('All Exif-Data are the same.','wp-strip-image-metadata');
 				}
-
+				
 				$exifAsStringLength = rtrim($allsizes,' /') . ' ' . __('Meta Size','wp-strip-image-metadata') . ' in Bytes.';
 				
 				$formatted_exif = wp_json_encode(
@@ -797,7 +805,7 @@ final class StripImageMetadata {
 							<h3>
 								<?php
 								esc_html_e(
-									'Extracted EXIF data (original, unscaled image)',
+									'Size of extracted Metadata from the original, unscaled image (additional metadata may be present)',
 									'wp-strip-image-metadata'
 								);
 								?>
@@ -816,10 +824,11 @@ final class StripImageMetadata {
 								line-height: 1.5;
 							"><?php echo esc_html( $formatted_exif ); ?>
 							</pre>
+							
 							<h3>
 								<?php
 								esc_html_e(
-									'Stripped EXIF data (smallest image)',
+									'Stripped Metadata (smallest image)',
 									'wp-strip-image-metadata'
 								);
 								?>
@@ -838,6 +847,7 @@ final class StripImageMetadata {
 								line-height: 1.5;
 							"><?php echo esc_html( $formatted_subsize_exif ); ?>
 							</pre>
+						
 						</div>
 					</details>
 				</div>
@@ -911,11 +921,14 @@ final class StripImageMetadata {
 			$imagick = new \Imagick(); 
 			$formats = $imagick->queryFormats(); // it is intentionally not to use Imagick::queryFormats() statically
 			$formats = array_map( 'strtolower', $formats );
-			$pos = \stripos( implode_all(' ', $formats), 'webp');
-			if ( $pos > 1) { $this->image_file_types[] = 'image/webp';}
+			$formatString = implode_all( ' ', $formats );
+			if ( false !== stripos( $formatString, 'webp' ) ) {
+				$this->image_file_types[] = 'image/webp';
+			}
 
-			$pos = \stripos( implode_all(' ', $formats), 'avif'); 
-			if ( $pos > 1) { $this->image_file_types[] = 'image/avif';} 
+			if ( false !== stripos( $formatString, 'avif' ) ) {
+				$this->image_file_types[] = 'image/avif';
+			}
 
 			$this->versionString = $imagick->getVersion()['versionString']; // it is intentionally not to use Imagick::getVersion statically
 			$imagick->clear();
