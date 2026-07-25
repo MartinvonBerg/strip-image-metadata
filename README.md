@@ -135,7 +135,7 @@ By default the plugin will process jpg/jpeg, webp and avif files.
 
 ### 1.7.0 - 2026-07-25 <!-- omit from toc -->
 - Update Readme and add some project documenation.
-- Changed filed handling for Bulk Meta Stripping: Now treated by single requests from the client (browser). Errors and failure are now handled in browser. Assessment:
+- Changed file handling for Bulk Meta Stripping: Now treated by single requests from the client (browser). Errors and failure are now handled in browser. Assessment:
     - Advantages
         - No dedicated background process required
         - Progress can be displayed immediately in browser. Users can immediately see which image is currently being processed
