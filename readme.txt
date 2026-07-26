@@ -138,7 +138,7 @@ No need to upgrade right now, if you don't use Images in Avif-Format.
 
 == Changelog ==
 
-### 1.7.0 - 2026-07-15
+### 1.7.0 - 2026-07-25
 - Update Readme and add some project documentation
 - Changed file handling for Bulk Meta Stripping: Now treated by single requests from the client (browser). Errors and failure are now handled in browser. Assessment:
     Advantages
