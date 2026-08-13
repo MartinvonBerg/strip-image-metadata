@@ -24,6 +24,7 @@ This Plugin extends the Functionality of "WP Strip Image Metadata" with the foll
   - [Preparation of Copyright Template Files](#preparation-of-copyright-template-files)
   - [What is image metadata?](#what-is-image-metadata)
   - [Frequently Asked Questions](#frequently-asked-questions)
+    - [Does it work with the new Client-Side Media Processing (WP V7.1+)](#does-it-work-with-the-new-client-side-media-processing-wp-v71)
     - [How will I know if I have the required Imagick or Gmagick extension on my site?](#how-will-i-know-if-i-have-the-required-imagick-or-gmagick-extension-on-my-site)
     - [Can I remove metadata from images uploaded before installing this plugin?](#can-i-remove-metadata-from-images-uploaded-before-installing-this-plugin)
     - [Will this work for all generated image subsizes (thumbnails)?](#will-this-work-for-all-generated-image-subsizes-thumbnails)
@@ -76,6 +77,17 @@ This plugin provides an easy enabled/disabled setting so you can make the call o
 
 ## Frequently Asked Questions
 
+### Does it work with the new Client-Side Media Processing (WP V7.1+)
+
+No. Currently, the plugin does not process images that WordPress generates using Client-Side Media Processing when uploading images directly in the Block Editor.
+
+The plugin continues to work normally when images are uploaded through the Media Library.
+
+By default, WordPress removes EXIF, IPTC, XMP, and therefore also embedded copyright information from the generated image sizes. This also applies to the -scaled image created when an uploaded image exceeds the WordPress big image size threshold (2560 px by default). In this case, the original image may still contain the metadata, but the -scaled image used by WordPress as the full-size web image does not contain the embedded copyright information.
+
+Good news: You can use this plugin's Remove Metadata function afterwards (also it should be called 'Add Metadata' now). It can remove unwanted metadata and then add the configured copyright information again. If you set the plugin's size threshold high enough, this can also be applied to all generated WordPress image sizes, including the -scaled image.
+The same can be done for multiple existing images using the plugin's batch processing function.
+
 ### How will I know if I have the required Imagick or Gmagick extension on my site?
 
 If you aren't sure, after installing the plugin, in WP Admin navigate to: Settings > Strip Image Metadata
@@ -90,7 +102,7 @@ Yes, there is a bulk action included. In WP Admin navigate to the Media library 
 
 Select which images you'd like to strip metadata from and then select the "WP Strip Image Metadata" bulk action.
 
-NEW: This is controlled now by the client (browser) and manages many files, too. But with some drawbacks: Leave it running once it has started. It shows a status message at the top. See assessment in changelog.
+NEW: This is controlled now by the client (browser) and manages many files, too. But with some drawbacks: Leave it running once it has started. It shows a status message at the top. It will stop if you close the Browser, Browser Tab or Window. See assessment in changelog.
 
 OLD: This can be a resource intensive process, so please only select a handful of images at one time for processing. This is the fallback if javascript is not activated.
 
@@ -133,7 +145,7 @@ By default the plugin will process jpg/jpeg, webp and avif files.
 
 ## Changelog
 
-### 1.7.0 - 2026-07-25 <!-- omit from toc -->
+### 1.7.0 - 2026-08-13 <!-- omit from toc -->
 - Update Readme and add some project documenation.
 - Changed file handling for Bulk Meta Stripping: Now treated by single requests from the client (browser). Errors and failure are now handled in browser. Assessment:
     - Advantages
@@ -152,6 +164,7 @@ By default the plugin will process jpg/jpeg, webp and avif files.
 - Improve and extend EXIF-Meta Output in Admin and consistent usage of settings['strip_active']
 - Replace setting of Orientation-Tag by rotating the final image. Only done for imagick! Reason: imagick can'set the orientation tag in images without any metadata.
 - Update Translations for de_DE
+- Test with WP 7.1 RC3.
 
 ### 1.6.0 - 2026-04-06 <!-- omit from toc -->
 - Rework of main class to strip metadata to remove static principles and to use separate file. Add an uninstall.php. Use PHPStan Level 8. Replaced Extractor by the shared Extractor.
