@@ -5,7 +5,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: metadata, image, exif, privacy, strip
 Requires at least: 6.0
 Tested up to: 7.1
-Stable tag: 1.7.0
+Stable tag: 1.8.0
 Requires PHP: 8.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -148,6 +148,9 @@ By default the plugin will process jpg/jpeg, avif and webp files.
 No need to upgrade right now, if you don't use Images in Avif-Format.
 
 == Changelog ==
+
+### 1.8.0 - 2026-08-25
+- bug fix in method 'get_gps_data' from BinaryExifExtractor for wrong formatted tags.
 
 ### 1.7.0 - 2026-08-13
 - Update Readme and add some project documentation

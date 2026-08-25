@@ -4,7 +4,7 @@
 # Martin von Berg, mail@mvb1.de, 2026.
 msgid ""
 msgstr ""
-"Project-Id-Version: Strip Image Metadata 1.7.0\n"
+"Project-Id-Version: Strip Image Metadata 1.8.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wp-strip-image-metadata\n"
 "Last-Translator: \n"
 "Language-Team: \n"

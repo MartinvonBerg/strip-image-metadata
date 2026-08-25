@@ -145,6 +145,9 @@ By default the plugin will process jpg/jpeg, webp and avif files.
 
 ## Changelog
 
+### 1.8.0 - 2026-08-25 <!-- omit from toc -->
+- bug fix in method 'get_gps_data' from BinaryExifExtractor for wrong formatted tags.
+  
 ### 1.7.0 - 2026-08-13 <!-- omit from toc -->
 - Update Readme and add some project documenation.
 - Changed file handling for Bulk Meta Stripping: Now treated by single requests from the client (browser). Errors and failure are now handled in browser. Assessment:
